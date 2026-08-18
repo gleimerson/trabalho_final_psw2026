@@ -1,11 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-
-class Pessoa(models.Model):
-    nome = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=14)
-
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+from pessoa.models import Pessoa
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=100)
