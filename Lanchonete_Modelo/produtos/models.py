@@ -28,10 +28,9 @@ class Pedido(models.Model):
     pessoa = models.ForeignKey(Pessoa, on_delete=models.CASCADE)
 
 class PedidoProduto(models.Model):
-
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-
-    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-
+   
     preco_unitario = models.FloatField()
     quantidade = models.IntegerField()
+
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
