@@ -4,5 +4,3 @@ from .models import Categoria, Produto, Pedido, PedidoProduto
 
 admin.site.register(Categoria)
 admin.site.register(Produto)
-admin.site.register(Pedido)
-admin.site.register(PedidoProduto)
