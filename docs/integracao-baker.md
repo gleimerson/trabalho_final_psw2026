@@ -19,7 +19,7 @@ O crédito exigido pela licença CC BY 4.0 permanece no rodapé: **Designed By H
 
 - `python manage.py check`: passou sem erros.
 - `python manage.py makemigrations --check --dry-run`: passou, sem mudanças detectadas.
-- `python manage.py collectstatic --noinput --dry-run`: passou; 175 arquivos encontrados, sem avisos de arquivo ausente.
+- `python manage.py collectstatic --noinput --dry-run`: passou; 173 arquivos encontrados, sem avisos de arquivo ausente.
 - `python manage.py test`: 40 testes passaram.
 - Cliente Django: início (302 para produtos), produtos, categorias, login, cadastro, pedidos, pessoas e páginas de detalhe/formulário responderam conforme as permissões (200, 302 ou 403).
 
