@@ -1,15 +1,1 @@
-{% extends "base.html" %}
-
-{% block content %}
-<h1>Excluir pessoa</h1>
-
-<p>Tem certeza que deseja excluir "{{ pessoa.nome }}"?</p>
-
-<form method="post">
-    {% csrf_token %}
-
-    <button type="submit">Sim, excluir</button>
-</form>
-
-<a href="{% url 'detalhar_pessoa' pessoa.id %}">Cancelar</a>
-{% endblock %}
+{% extends "confirmar_exclusao_base.html" %}{% block delete_title %}Excluir pessoa{% endblock %}{% block delete_message %}Tem certeza que deseja excluir “{{ pessoa.nome }}”?{% endblock %}{% block cancel_url %}{% url 'detalhar_pessoa' pessoa.id %}{% endblock %}

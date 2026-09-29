@@ -1,17 +1,1 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>{{ pessoa.nome }}</h1>
-<p>Usuário: {{ pessoa.username }}</p>
-<p>CPF: {{ pessoa.cpf }}</p>
-<p>E-mail: {{ pessoa.email|default:"Não informado" }}</p>
-{% if user.pk == pessoa.pk or perms.pessoa.change_pessoa %}
-<a href="{% url 'editar_pessoa' pessoa.id %}">Editar</a>
-{% endif %}
-{% if user.pk == pessoa.pk or perms.pessoa.delete_pessoa %}
-<a href="{% url 'excluir_pessoa' pessoa.id %}">Excluir</a>
-{% endif %}
-{% if user.pk == pessoa.pk %}
-<a href="{% url 'alterar_senha' %}">Alterar senha</a>
-{% endif %}
-<a href="{% url 'listar_produtos' %}">Voltar</a>
-{% endblock %}
+{% extends "base.html" %}{% block content %}<h1 class="display-6">{{ pessoa.nome }}</h1><dl class="row"><dt class="col-sm-3">Usuário</dt><dd class="col-sm-9">{{ pessoa.username }}</dd><dt class="col-sm-3">CPF</dt><dd class="col-sm-9">{{ pessoa.cpf }}</dd><dt class="col-sm-3">E-mail</dt><dd class="col-sm-9">{{ pessoa.email|default:"Não informado" }}</dd></dl><div class="d-flex gap-2 flex-wrap">{% if user.pk == pessoa.pk or perms.pessoa.change_pessoa %}<a class="btn btn-primary rounded-pill" href="{% url 'editar_pessoa' pessoa.id %}">Editar</a>{% endif %}{% if user.pk == pessoa.pk or perms.pessoa.delete_pessoa %}<a class="btn btn-outline-danger rounded-pill" href="{% url 'excluir_pessoa' pessoa.id %}">Excluir</a>{% endif %}{% if user.pk == pessoa.pk %}<a class="btn btn-outline-dark rounded-pill" href="{% url 'alterar_senha' %}">Alterar senha</a>{% endif %}</div>{% endblock %}

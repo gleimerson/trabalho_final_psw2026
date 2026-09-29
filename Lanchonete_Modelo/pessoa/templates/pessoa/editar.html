@@ -1,14 +1,1 @@
-{% extends "base.html" %}
-
-{% block content %}
-<h1>Editar pessoa</h1>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <button type="submit">Salvar alterações</button>
-</form>
-
-<a href="{% url 'detalhar_pessoa' pessoa.id %}">Cancelar</a>
-{% endblock %}
+{% extends "form_base.html" %}{% block form_title %}Editar pessoa{% endblock %}{% block form_content %}<form method="post">{% csrf_token %}{% include "includes/form_fields.html" %}<button class="btn btn-primary rounded-pill" type="submit">Salvar alterações</button> <a class="btn btn-outline-dark rounded-pill" href="{% url 'detalhar_pessoa' pessoa.id %}">Cancelar</a></form>{% endblock %}
