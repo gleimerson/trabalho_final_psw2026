@@ -1,10 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
 <h1>Novo pedido</h1>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <button type="submit">Salvar</button>
-</form>
-
-<a href="{% url 'listar_pedidos' %}">Voltar</a>
+{% include "pedidos/formulario.html" %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% load static %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <h2>Itens do pedido</h2>
+    <p>O total será calculado usando os preços dos produtos. Para substituir um produto já salvo, remova o item e adicione outro.</p>
+    {{ formset.management_form }}
+    {{ formset.non_form_errors }}
+    <div id="itens">
+        {% for item_form in formset %}
+        <fieldset class="item-pedido">
+            <legend>Item {{ forloop.counter }}</legend>
+            {{ item_form.as_p }}
+        </fieldset>
+        {% endfor %}
+    </div>
+    <template id="item-vazio">
+        <fieldset class="item-pedido">
+            <legend>Novo item</legend>
+            {{ formset.empty_form.as_p }}
+        </fieldset>
+    </template>
+    <button type="button" id="adicionar-item">Adicionar produto</button>
+    <button type="submit">Salvar pedido</button>
+</form>
+<a href="{% url 'listar_pedidos' %}">Voltar aos pedidos</a>
+<script src="{% static 'js/pedidos.js' %}" defer></script>

@@ -1,7 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
 <h1>{{ pessoa.nome }}</h1>
-
+<p>Usuário: {{ pessoa.username }}</p>
 <p>CPF: {{ pessoa.cpf }}</p>
-
+<p>E-mail: {{ pessoa.email|default:"Não informado" }}</p>
+{% if user.pk == pessoa.pk or perms.pessoa.change_pessoa %}
 <a href="{% url 'editar_pessoa' pessoa.id %}">Editar</a>
+{% endif %}
+{% if user.pk == pessoa.pk or perms.pessoa.delete_pessoa %}
 <a href="{% url 'excluir_pessoa' pessoa.id %}">Excluir</a>
-<a href="{% url 'listar_pessoas' %}">Voltar</a>
+{% endif %}
+{% if user.pk == pessoa.pk %}
+<a href="{% url 'alterar_senha' %}">Alterar senha</a>
+{% endif %}
+<a href="{% url 'listar_produtos' %}">Voltar</a>
+{% endblock %}

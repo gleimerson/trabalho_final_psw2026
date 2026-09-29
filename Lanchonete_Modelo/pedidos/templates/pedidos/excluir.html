@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>Excluir pedido</h1>
 
 <p>Tem certeza que deseja excluir o pedido #{{ pedido.id }}?</p>
@@ -9,3 +12,4 @@
 </form>
 
 <a href="{% url 'detalhar_pedido' pedido.id %}">Cancelar</a>
+{% endblock %}

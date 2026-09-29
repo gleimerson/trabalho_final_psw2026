@@ -1,6 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>Pessoas</h1>
 
+{% if perms.pessoa.add_pessoa %}
 <a href="{% url 'criar_pessoa' %}">Nova pessoa</a>
+{% endif %}
 
 <ul>
     {% for pessoa in pessoas %}
@@ -14,3 +19,4 @@
         <li>Nenhuma pessoa cadastrada.</li>
     {% endfor %}
 </ul>
+{% endblock %}

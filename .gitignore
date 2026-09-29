@@ -1,0 +1,23 @@
+# Python e ambientes locais
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Dados locais (arquivos já versionados não são removidos)
+*.sqlite3
+*.sqlite3-journal
+Lanchonete_Modelo/media/
+staticfiles/
+
+# Ferramentas
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.vscode/
+.idea/
+
+# Cópias locais de segurança
+backups/

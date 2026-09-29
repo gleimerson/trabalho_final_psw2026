@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>Editar pessoa</h1>
 
 <form method="post">
@@ -8,3 +11,4 @@
 </form>
 
 <a href="{% url 'detalhar_pessoa' pessoa.id %}">Cancelar</a>
+{% endblock %}

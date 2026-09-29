@@ -1,13 +1,15 @@
-from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Produto, Categoria
 from .forms import CategoriaForm, ProdutoForm
-from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models.deletion import ProtectedError
+from django.views.decorators.http import require_http_methods
 
 
 
 def listar_categorias(request):
-    categorias = Categoria.objects.all()
+    categorias = Categoria.objects.order_by("nome", "pk")
 
     return render(
         request,
@@ -16,6 +18,8 @@ def listar_categorias(request):
     )
 
 @login_required
+@permission_required("produtos.add_categoria", raise_exception=True)
+@require_http_methods(["GET", "POST"])
 def criar_categoria(request):
     if request.method == 'POST':
         form = CategoriaForm(request.POST)
@@ -38,6 +42,8 @@ def detalhar_categoria(request, id):
     return render(request, 'categorias/detalhar.html', {'categoria': categoria})
 
 @login_required
+@permission_required("produtos.change_categoria", raise_exception=True)
+@require_http_methods(["GET", "POST"])
 def editar_categoria(request, id):
     categoria = get_object_or_404(Categoria, id=id)
 
@@ -53,20 +59,28 @@ def editar_categoria(request, id):
     return render(request, 'categorias/editar.html', {'form': form, 'categoria': categoria})
 
 @login_required
+@permission_required("produtos.delete_categoria", raise_exception=True)
+@require_http_methods(["GET", "POST"])
 def excluir_categoria(request, id):
     categoria = get_object_or_404(Categoria, id=id)
 
     if request.method == 'POST':
-        categoria.delete()
-        return redirect('listar_categorias')
+        try:
+            categoria.delete()
+        except ProtectedError:
+            messages.error(request, "Este registro está em uso e não pode ser excluído.")
+        else:
+            return redirect('listar_categorias')
 
     return render(request, 'categorias/excluir.html', {'categoria': categoria})
 
 def listar_produtos(request):
-    produtos = Produto.objects.all()
+    produtos = Produto.objects.select_related("categoria").order_by("nome", "pk")
     return render(request, 'produtos/listar.html', {'produtos': produtos})
 
 @login_required
+@permission_required("produtos.add_produto", raise_exception=True)
+@require_http_methods(["GET", "POST"])
 def criar_produto(request):
     if request.method == 'POST':
         form = ProdutoForm(request.POST, request.FILES)
@@ -85,6 +99,8 @@ def detalhar_produto(request, id):
     return render(request, 'produtos/detalhar.html', {'produto': produto})
 
 @login_required
+@permission_required("produtos.change_produto", raise_exception=True)
+@require_http_methods(["GET", "POST"])
 def editar_produto(request, id):
     produto = get_object_or_404(Produto, id=id)
 
@@ -100,11 +116,17 @@ def editar_produto(request, id):
     return render(request, 'produtos/editar.html', {'form': form, 'produto': produto})
 
 @login_required
+@permission_required("produtos.delete_produto", raise_exception=True)
+@require_http_methods(["GET", "POST"])
 def excluir_produto(request, id):
     produto = get_object_or_404(Produto, id=id)
 
     if request.method == 'POST':
-        produto.delete()
-        return redirect('listar_produtos')
+        try:
+            produto.delete()
+        except ProtectedError:
+            messages.error(request, "Este registro está em uso e não pode ser excluído.")
+        else:
+            return redirect('listar_produtos')
 
     return render(request, 'produtos/excluir.html', {'produto': produto})

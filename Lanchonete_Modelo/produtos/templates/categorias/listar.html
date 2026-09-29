@@ -1,6 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>Categorias</h1>
 
+{% if perms.produtos.add_categoria %}
 <a href="{% url 'criar_categoria' %}">Nova categoria</a>
+{% endif %}
 
 <ul>
     {% for categoria in categorias %}
@@ -13,3 +18,4 @@
         <li>Nenhuma categoria cadastrada.</li>
     {% endfor %}
 </ul>
+{% endblock %}

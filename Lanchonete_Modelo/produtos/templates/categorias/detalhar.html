@@ -1,7 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>{{ categoria.nome }}</h1>
 
 <p>{{ categoria.descricao }}</p>
 
+{% if perms.produtos.change_categoria %}
 <a href="{% url 'editar_categoria' categoria.id %}">Editar</a>
+{% endif %}
+{% if perms.produtos.delete_categoria %}
 <a href="{% url 'excluir_categoria' categoria.id %}">Excluir</a>
+{% endif %}
 <a href="{% url 'listar_categorias' %}">Voltar</a>
+{% endblock %}
