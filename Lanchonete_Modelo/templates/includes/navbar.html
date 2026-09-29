@@ -1,7 +1,7 @@
 {% load form_ui %}
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top py-lg-0 px-lg-5" aria-label="Navegação principal">
- <div class="container-fluid flex-wrap"><a href="{% url 'inicio' %}" class="navbar-brand ms-2 ms-lg-0"><h1 class="text-primary m-0">Lanchonete Modelo</h1></a>
- <div class="navbar-nav baker-nav flex-row flex-wrap align-items-center gap-1 ms-auto p-2 p-lg-0">
+<nav class="navbar navbar-dark fixed-top py-2 px-lg-5" aria-label="Navegação principal">
+ <div class="container-fluid flex-wrap gap-2"><a href="{% url 'inicio' %}" class="navbar-brand ms-2"><h1 class="text-primary m-0">Lanchonete Modelo</h1></a>
+ <div class="navbar-nav flex-row flex-wrap align-items-center gap-1 ms-auto">
   {% include "includes/nav_link.html" with url_name="listar_produtos" label="Produtos" %}{% include "includes/nav_link.html" with url_name="listar_categorias" label="Categorias" %}
   {% if perms.pessoa.view_pessoa %}{% include "includes/nav_link.html" with url_name="listar_pessoas" label="Pessoas" %}{% endif %}
   {% if user.is_authenticated %}{% include "includes/nav_link.html" with url_name="listar_pedidos" label="Pedidos" %}{% include "includes/nav_link.html" with url_name="minha_conta" label="Minha conta" %}{% include "includes/nav_link.html" with url_name="alterar_senha" label="Alterar senha" %}{% endif %}
