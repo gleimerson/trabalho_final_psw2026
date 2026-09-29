@@ -90,6 +90,44 @@ class NavegacaoTests(TestCase):
             self.assertTrue(produto.imagem.storage.exists(produto.imagem.name))
             self.assertTrue(produto.imagem.url.startswith("/media/produtos/"))
 
+    def test_metodos_http_objetos_inexistentes_e_get_sem_exclusao(self):
+        self.client.force_login(self.pessoa)
+        for singular, plural, objeto in (
+            ("categoria", "categorias", self.categoria), ("produto", "produtos", self.produto),
+            ("pessoa", "pessoas", self.pessoa), ("pedido", "pedidos", self.pedido),
+        ):
+            for nome, args in [(f"listar_{plural}", []), (f"detalhar_{singular}", [objeto.pk])]:
+                with self.subTest(nome=nome):
+                    self.assertEqual(self.client.head(reverse(nome, args=args)).status_code, 200)
+                    self.assertEqual(self.client.post(reverse(nome, args=args)).status_code, 405)
+            for acao in ("criar", "editar", "excluir"):
+                args = [] if acao == "criar" else [objeto.pk]
+                url = reverse(f"{acao}_{singular}", args=args)
+                self.assertEqual(self.client.get(url).status_code, 200)
+                for metodo in (self.client.put, self.client.patch, self.client.delete):
+                    self.assertEqual(metodo(url).status_code, 405)
+                self.assertTrue(type(objeto).objects.filter(pk=objeto.pk).exists())
+            for acao in ("detalhar", "editar", "excluir"):
+                self.assertEqual(self.client.get(reverse(f"{acao}_{singular}", args=[99999])).status_code, 404)
+        self.assertEqual(self.client.post(reverse("minha_conta")).status_code, 405)
+        self.client.logout()
+        self.assertEqual(self.client.put(reverse("cadastro")).status_code, 405)
+
+    def test_rotas_protegidas_redirecionam_anonimo_para_login(self):
+        rotas = [("minha_conta", []), ("alterar_senha", []), ("senha_alterada", [])]
+        for singular, plural, objeto in (
+            ("categoria", "categorias", self.categoria), ("produto", "produtos", self.produto),
+            ("pessoa", "pessoas", self.pessoa), ("pedido", "pedidos", self.pedido),
+        ):
+            rotas.extend((f"{acao}_{singular}", [] if acao == "criar" else [objeto.pk])
+                         for acao in ("criar", "editar", "excluir"))
+            if singular in ("pessoa", "pedido"):
+                rotas.extend([(f"listar_{plural}", []), (f"detalhar_{singular}", [objeto.pk])])
+        for nome, args in rotas:
+            with self.subTest(nome=nome):
+                url = reverse(nome, args=args)
+                self.assertRedirects(self.client.get(url), f"{reverse('login_pessoa')}?next={url}")
+
 
 class CatalogoPermissoesTests(TestCase):
     @classmethod
@@ -125,3 +163,57 @@ class CatalogoPermissoesTests(TestCase):
         form = ProdutoForm(data, {"imagem": SimpleUploadedFile("teste.png", b"isto nao e uma imagem", content_type="image/png")})
         self.assertFalse(form.is_valid())
         self.assertIn("imagem", form.errors)
+
+    def test_catalogo_publico_sem_acoes_administrativas(self):
+        for model, plural, objeto in [("categoria", "categorias", self.categoria), ("produto", "produtos", self.produto)]:
+            lista = self.client.get(reverse(f"listar_{plural}"))
+            self.assertContains(lista, objeto.nome)
+            self.assertNotContains(lista, reverse(f"criar_{model}"))
+            detalhe = self.client.get(reverse(f"detalhar_{model}", args=[objeto.pk]))
+            self.assertContains(detalhe, objeto.descricao)
+            for acao in ("editar", "excluir"):
+                self.assertNotContains(detalhe, reverse(f"{acao}_{model}", args=[objeto.pk]))
+
+    def test_crud_com_permissoes_individuais_e_feedback(self):
+        from django.contrib.auth.models import Permission
+        for model, classe, plural in [("categoria", Categoria, "categorias"), ("produto", Produto, "produtos")]:
+            data = {"nome": "Novo", "descricao": "Descrição"}
+            if model == "produto":
+                data.update(preco="10.00", categoria=self.categoria.pk)
+            for acao, codename in [("criar", "add"), ("editar", "change"), ("excluir", "delete")]:
+                with self.subTest(model=model, acao=acao):
+                    self.cliente.user_permissions.set([Permission.objects.get(
+                        content_type__app_label="produtos", codename=f"{codename}_{model}"
+                    )])
+                    self.client.force_login(self.cliente)
+                    args = [] if acao == "criar" else [objeto.pk]
+                    if acao == "editar":
+                        data["nome"] = "Atualizado"
+                    resposta = self.client.post(reverse(f"{acao}_{model}", args=args), data, follow=True)
+                    self.assertEqual(resposta.status_code, 200)
+                    self.assertContains(resposta, "sucesso")
+                    if acao == "criar":
+                        objeto = classe.objects.get(nome="Novo")
+                    elif acao == "editar":
+                        objeto.refresh_from_db()
+                        self.assertEqual(objeto.nome, "Atualizado")
+                    else:
+                        self.assertFalse(classe.objects.filter(pk=objeto.pk).exists())
+                    outro_codename = "change" if codename == "add" else "add"
+                    outra_acao = "editar" if outro_codename == "change" else "criar"
+                    outros_args = [objeto.pk] if outra_acao == "editar" else []
+                    self.assertEqual(self.client.post(reverse(f"{outra_acao}_{model}", args=outros_args)).status_code, 403)
+
+    def test_formularios_invalidos_exibem_erros_sem_salvar(self):
+        from django.contrib.auth.models import Permission
+        self.cliente.user_permissions.set(Permission.objects.filter(content_type__app_label="produtos"))
+        self.client.force_login(self.cliente)
+        for model, objeto in [("categoria", self.categoria), ("produto", self.produto)]:
+            for acao in ("criar", "editar"):
+                args = [] if acao == "criar" else [objeto.pk]
+                resposta = self.client.post(reverse(f"{acao}_{model}", args=args), {})
+                self.assertEqual(resposta.status_code, 200)
+                self.assertIn("nome", resposta.context["form"].errors)
+                self.assertContains(resposta, "invalid-feedback")
+            objeto.refresh_from_db()
+            self.assertEqual(type(objeto).objects.count(), 1)

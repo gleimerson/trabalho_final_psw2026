@@ -59,21 +59,30 @@ class PedidoProdutoForm(forms.ModelForm):
 
 class BaseItensFormSet(BaseInlineFormSet):
     def clean(self):
+        # Valide a identidade inclusive das linhas marcadas para exclusão.
+        existentes = set(self.instance.itens.values_list("pk", flat=True)) if self.instance.pk else set()
+        if self.initial_form_count() != len(existentes):
+            raise forms.ValidationError("A lista de itens mudou. Recarregue a página e tente novamente.")
+        enviados = set()
+        for indice, form in enumerate(self.forms):
+            item = form.cleaned_data.get("id")
+            if indice < self.initial_form_count():
+                if item is None or item.pk not in existentes or item.pk in enviados:
+                    raise forms.ValidationError("Os itens informados não pertencem a este pedido ou estão repetidos.")
+                enviados.add(item.pk)
+            elif item is not None:
+                raise forms.ValidationError("Um novo item não pode informar o ID de um item existente.")
+        if existentes != enviados:
+            raise forms.ValidationError("A lista de itens mudou. Recarregue a página e tente novamente.")
         super().clean()
         if any(self.errors):
             return
         total = Decimal("0.00")
         produtos = set()
-        ids = set()
         for form in self.forms:
             data = form.cleaned_data
             if not data or data.get("DELETE"):
                 continue
-            item_id = data.get("id")
-            if item_id:
-                if item_id.pedido_id != self.instance.pk or item_id.pk in ids:
-                    raise forms.ValidationError("Os itens informados não pertencem a este pedido ou estão repetidos.")
-                ids.add(item_id.pk)
             produto = data.get("produto")
             if produto:
                 if produto.pk in produtos:
@@ -82,11 +91,6 @@ class BaseItensFormSet(BaseInlineFormSet):
                 total += form.instance.preco_unitario * data["quantidade"]
         if total > Decimal("9999999999.99"):
             raise forms.ValidationError("O total do pedido ultrapassa o limite permitido.")
-        # Não aceitar a omissão de linhas existentes via adulteração do management form.
-        existentes = set(self.instance.itens.values_list("pk", flat=True)) if self.instance.pk else set()
-        enviados = {form.cleaned_data["id"].pk for form in self.forms if form.cleaned_data.get("id")}
-        if existentes != enviados:
-            raise forms.ValidationError("A lista de itens mudou. Recarregue a página e tente novamente.")
 
 
 PedidoProdutoFormSet = inlineformset_factory(

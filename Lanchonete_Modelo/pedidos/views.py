@@ -1,9 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
+
 
 from pessoa.models import Pessoa
 from .forms import PedidoForm, PedidoProdutoFormSet
@@ -22,7 +23,8 @@ def verificar_edicao(user, pedido, acao):
         raise PermissionDenied("Somente pedidos novos podem ser alterados pelo cliente.")
 
 
-@login_required
+
+@require_http_methods(["GET", "HEAD"])
 def listar_pedidos(request):
     pedidos = pedidos_acessiveis(request.user).order_by("-data_pedido", "-pk")
     return render(request, "pedidos/listar.html", {"pedidos": pedidos})
@@ -44,7 +46,7 @@ def formulario_pedido(request, pedido, template):
     return render(request, template, {"form": form, "formset": formset, "pedido": pedido})
 
 
-@login_required
+
 @require_http_methods(["GET", "POST"])
 @transaction.atomic
 def criar_pedido(request):
@@ -54,13 +56,13 @@ def criar_pedido(request):
     return formulario_pedido(request, Pedido(), "pedidos/criar.html")
 
 
-@login_required
+
 def detalhar_pedido(request, id):
     pedido = get_object_or_404(pedidos_acessiveis(request.user), id=id)
     return render(request, "pedidos/detalhar.html", {"pedido": pedido, "itens": pedido.itens.select_related("produto")})
 
 
-@login_required
+
 @require_http_methods(["GET", "POST"])
 @transaction.atomic
 def editar_pedido(request, id):
@@ -69,7 +71,7 @@ def editar_pedido(request, id):
     return formulario_pedido(request, pedido, "pedidos/editar.html")
 
 
-@login_required
+
 @require_http_methods(["GET", "POST"])
 @transaction.atomic
 def excluir_pedido(request, id):

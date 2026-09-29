@@ -180,3 +180,71 @@ class PessoaPermissoesTests(TestCase):
         self.pessoa.user_permissions.add(Permission.objects.get(content_type__app_label="pessoa", codename="change_pessoa"))
         self.client.force_login(self.pessoa)
         self.assertEqual(self.client.get(reverse("admin:pessoa_pessoa_change", args=[self.outra.pk])).status_code, 403)
+
+    def test_cadastro_administrativo_com_add_sem_view(self):
+        self.pessoa.user_permissions.add(Permission.objects.get(content_type__app_label="pessoa", codename="add_pessoa"))
+        self.client.force_login(self.pessoa)
+        pagina = self.client.get(reverse("criar_pessoa"))
+        self.assertNotContains(pagina, reverse("listar_pessoas") + '"')
+        resposta = self.client.post(reverse("criar_pessoa"), {
+            "username": "novo", "nome": "Novo", "cpf": "01234567890",
+            "password1": SENHA, "password2": SENHA,
+        }, follow=True)
+        self.assertContains(resposta, "Pessoa cadastrada com sucesso")
+        self.assertTrue(Pessoa.objects.get(username="novo").check_password(SENHA))
+        self.assertEqual(self.client.get(reverse("listar_pessoas")).status_code, 403)
+
+    def test_permissoes_individuais_editar_e_excluir_terceiros(self):
+        self.client.force_login(self.pessoa)
+        for acao, codename in [("editar", "change"), ("excluir", "delete")]:
+            url = reverse(f"{acao}_pessoa", args=[self.outra.pk])
+            self.assertEqual(self.client.post(url).status_code, 403)
+            self.pessoa.user_permissions.set([Permission.objects.get(content_type__app_label="pessoa", codename=f"{codename}_pessoa")])
+            pagina = self.client.get(url)
+            self.assertEqual(pagina.status_code, 200)
+            self.assertNotContains(pagina, reverse("detalhar_pessoa", args=[self.outra.pk]))
+            resposta = self.client.post(url, {"nome": "Atualizada", "cpf": self.outra.cpf}, follow=True)
+            self.assertContains(resposta, "Perfil atualizado" if acao == "editar" else "Pessoa excluída")
+            if acao == "editar":
+                self.outra.refresh_from_db()
+                self.assertEqual(self.outra.nome, "Atualizada")
+        self.assertFalse(User.objects.filter(pk=self.outra.pk).exists())
+
+    def test_contas_staff_superuser_protegidas_no_backend_e_template(self):
+        self.pessoa.user_permissions.set(Permission.objects.filter(content_type__app_label="pessoa"))
+        self.client.force_login(self.pessoa)
+        for flag in ("is_staff", "is_superuser"):
+            setattr(self.outra, flag, True)
+            self.outra.save()
+            pagina = self.client.get(reverse("detalhar_pessoa", args=[self.outra.pk]))
+            for acao in ("editar", "excluir"):
+                url = reverse(f"{acao}_pessoa", args=[self.outra.pk])
+                self.assertNotContains(pagina, url)
+                self.assertEqual(self.client.get(url).status_code, 403)
+                self.assertEqual(self.client.post(url, {"nome": "Invadida", "cpf": self.outra.cpf}).status_code, 403)
+            setattr(self.outra, flag, False)
+        self.outra.is_staff = True
+        self.outra.save()
+        admin = User.objects.create_superuser(username="gestor", password=SENHA)
+        self.client.force_login(admin)
+        resposta = self.client.post(reverse("editar_pessoa", args=[self.outra.pk]), {"nome": "Autorizada", "cpf": self.outra.cpf})
+        self.assertEqual(resposta.status_code, 302)
+        self.outra.refresh_from_db()
+        self.assertEqual(self.outra.nome, "Autorizada")
+        self.assertEqual(self.client.post(reverse("excluir_pessoa", args=[self.outra.pk])).status_code, 302)
+
+    def test_staff_sem_permissao_nao_acessa_terceiros(self):
+        self.pessoa.is_staff = True
+        self.pessoa.save()
+        self.client.force_login(self.pessoa)
+        for acao in ("detalhar", "editar", "excluir"):
+            self.assertEqual(self.client.get(reverse(f"{acao}_pessoa", args=[self.outra.pk])).status_code, 403)
+        self.assertRedirects(self.client.get(reverse("minha_conta")), reverse("detalhar_pessoa", args=[self.pessoa.pk]))
+
+    def test_edicao_rejeita_cpf_duplicado_sem_alterar_perfil(self):
+        self.client.force_login(self.pessoa)
+        resposta = self.client.post(reverse("editar_pessoa", args=[self.pessoa.pk]), {"nome": "Inválido", "cpf": self.outra.cpf})
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn("cpf", resposta.context["form"].errors)
+        self.pessoa.refresh_from_db()
+        self.assertEqual(self.pessoa.nome, "Cliente")

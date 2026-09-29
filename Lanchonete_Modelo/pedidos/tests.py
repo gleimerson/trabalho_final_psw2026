@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth.models import Permission, User
 from django.db import IntegrityError, transaction
@@ -204,4 +205,102 @@ class PedidosTests(TestCase):
             [], pessoa=self.cliente.pk, status=Pedido.Status.NOVO, _save="Salvar"
         ))
         self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(Pedido.objects.count(), 1)
+
+    def test_management_form_e_ids_adulterados_nao_modificam_itens(self):
+        original = {"id": self.item.pk, "produto": self.produto.pk, "quantidade": 3}
+        cenarios = [
+            self.dados([original], initial=0),
+            self.dados([original, dict(original, DELETE="on")], initial=2),
+            self.dados([dict(original, DELETE="on"), original], initial=2),
+            self.dados([original, dict(original, produto=self.bebida.pk)], initial=1),
+        ]
+        for data in cenarios:
+            with self.subTest(data=data):
+                resposta = self.client.post(reverse("editar_pedido", args=[self.pedido.pk]), data)
+                self.assertEqual(resposta.status_code, 200)
+                self.assertTrue(resposta.context["formset"].non_form_errors())
+                self.item.refresh_from_db()
+                self.pedido.refresh_from_db()
+                self.assertEqual(self.item.quantidade, 2)
+                self.assertEqual(self.pedido.valor_total, Decimal("24.70"))
+                self.assertEqual(self.pedido.itens.count(), 1)
+
+    def test_falha_ao_salvar_itens_reverte_pedido_e_edicao(self):
+        for nome, args, data in [
+            ("criar_pedido", [], self.dados()),
+            ("editar_pedido", [self.pedido.pk], self.dados([
+                {"id": self.item.pk, "produto": self.produto.pk, "quantidade": 3},
+            ], initial=1)),
+        ]:
+            with self.subTest(nome=nome):
+                with patch("pedidos.views.PedidoProdutoFormSet.save", side_effect=RuntimeError("Falha simulada")):
+                    with self.assertRaisesMessage(RuntimeError, "Falha simulada"):
+                        self.client.post(reverse(nome, args=args), data)
+                self.assertEqual(Pedido.objects.count(), 1)
+                self.item.refresh_from_db()
+                self.pedido.refresh_from_db()
+                self.assertEqual(self.item.quantidade, 2)
+                self.assertEqual(self.pedido.valor_total, Decimal("24.70"))
+
+    def test_permissoes_administrativas_por_acao(self):
+        self.client.force_login(self.outro)
+        self.outro.user_permissions.add(Permission.objects.get(content_type__app_label="pedidos", codename="add_pedido"))
+        resposta = self.client.post(reverse("criar_pedido"), self.dados(pessoa=self.cliente.pk, status=Pedido.Status.PREPARO))
+        self.assertEqual(resposta.status_code, 302)
+        criado = Pedido.objects.latest("pk")
+        self.assertEqual(criado.pessoa_id, self.cliente.pk)
+        self.assertEqual(criado.status, Pedido.Status.PREPARO)
+        self.assertEqual(self.client.get(reverse("detalhar_pedido", args=[criado.pk])).status_code, 404)
+        self.outro.user_permissions.set([Permission.objects.get(content_type__app_label="pedidos", codename="change_pedido")])
+        data = self.dados([{"id": self.item.pk, "produto": self.produto.pk, "quantidade": 4}], initial=1,
+                          pessoa=self.cliente.pk, status=Pedido.Status.ENTREGUE)
+        self.assertEqual(self.client.post(reverse("editar_pedido", args=[self.pedido.pk]), data).status_code, 302)
+        self.pedido.refresh_from_db()
+        self.assertEqual(self.pedido.status, Pedido.Status.ENTREGUE)
+        self.assertEqual(self.pedido.valor_total, Decimal("49.40"))
+        self.assertEqual(self.client.post(reverse("excluir_pedido", args=[self.pedido.pk])).status_code, 404)
+        self.outro.user_permissions.set([Permission.objects.get(content_type__app_label="pedidos", codename="delete_pedido")])
+        self.assertEqual(self.client.post(reverse("excluir_pedido", args=[self.pedido.pk])).status_code, 302)
+        self.assertFalse(Pedido.objects.filter(pk=self.pedido.pk).exists())
+
+    def test_todos_status_nao_novos_bloqueiam_cliente_e_ocultam_acoes(self):
+        for status in Pedido.Status.values:
+            if status == Pedido.Status.NOVO:
+                continue
+            self.pedido.status = status
+            self.pedido.save()
+            pagina = self.client.get(reverse("detalhar_pedido", args=[self.pedido.pk]))
+            self.assertContains(pagina, self.produto.nome)
+            for acao in ("editar", "excluir"):
+                url = reverse(f"{acao}_pedido", args=[self.pedido.pk])
+                self.assertNotContains(pagina, url)
+                self.assertEqual(self.client.get(url).status_code, 403)
+                self.assertEqual(self.client.post(url, self.dados()).status_code, 403)
+
+    def test_post_edicao_de_outro_pedido_nao_altera_dados(self):
+        self.client.force_login(self.outro)
+        data = self.dados([{"id": self.item.pk, "produto": self.produto.pk, "quantidade": 9}], initial=1)
+        self.assertEqual(self.client.post(reverse("editar_pedido", args=[self.pedido.pk]), data).status_code, 404)
+        self.item.refresh_from_db()
+        self.assertEqual(self.item.quantidade, 2)
+
+    def test_produto_indisponivel_permite_reducao_mas_nao_aumento(self):
+        self.produto.disponivel = False
+        self.produto.save()
+        data = self.dados([{"id": self.item.pk, "produto": self.produto.pk, "quantidade": 3}], initial=1)
+        resposta = self.client.post(reverse("editar_pedido", args=[self.pedido.pk]), data)
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn("produto", resposta.context["formset"].errors[0])
+        data["itens-0-quantidade"] = 1
+        self.assertEqual(self.client.post(reverse("editar_pedido", args=[self.pedido.pk]), data).status_code, 302)
+        self.pedido.refresh_from_db()
+        self.assertEqual(self.pedido.valor_total, Decimal("12.35"))
+
+    def test_total_acima_do_limite_nao_salva(self):
+        self.produto.preco = Decimal("9999999999.99")
+        self.produto.save()
+        resposta = self.client.post(reverse("criar_pedido"), self.dados())
+        self.assertEqual(resposta.status_code, 200)
+        self.assertTrue(resposta.context["formset"].non_form_errors())
         self.assertEqual(Pedido.objects.count(), 1)

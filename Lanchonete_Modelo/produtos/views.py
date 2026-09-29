@@ -8,6 +8,8 @@ from django.views.decorators.http import require_http_methods
 
 
 
+
+@require_http_methods(["GET", "HEAD"])
 def listar_categorias(request):
     categorias = Categoria.objects.order_by("nome", "pk")
 
@@ -26,6 +28,7 @@ def criar_categoria(request):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Categoria criada com sucesso.")
             return redirect('listar_categorias')
 
     else:
@@ -37,12 +40,20 @@ def criar_categoria(request):
         {'form': form}
     )
 
+
+
+@require_http_methods(["GET", "HEAD"])
 def detalhar_categoria(request, id):
     categoria = get_object_or_404(Categoria, id=id)
-    return render(request, 'categorias/detalhar.html', {'categoria': categoria})
+    produtos = Produto.objects.filter(categoria_id=id)
 
-@login_required
-@permission_required("produtos.change_categoria", raise_exception=True)
+    return render(request, 'categorias/detalhar.html', {
+        'categoria': categoria,
+        'produtos': produtos
+    })
+
+
+
 @require_http_methods(["GET", "POST"])
 def editar_categoria(request, id):
     categoria = get_object_or_404(Categoria, id=id)
@@ -52,6 +63,7 @@ def editar_categoria(request, id):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Categoria atualizada com sucesso.")
             return redirect('detalhar_categoria', id=categoria.id)
     else:
         form = CategoriaForm(instance=categoria)
@@ -70,10 +82,12 @@ def excluir_categoria(request, id):
         except ProtectedError:
             messages.error(request, "Este registro está em uso e não pode ser excluído.")
         else:
+            messages.success(request, "Categoria excluída com sucesso.")
             return redirect('listar_categorias')
 
     return render(request, 'categorias/excluir.html', {'categoria': categoria})
 
+@require_http_methods(["GET", "HEAD"])
 def listar_produtos(request):
     produtos = Produto.objects.select_related("categoria").order_by("nome", "pk")
     return render(request, 'produtos/listar.html', {'produtos': produtos})
@@ -87,6 +101,7 @@ def criar_produto(request):
 
         if form.is_valid():
             produto = form.save()
+            messages.success(request, "Produto criado com sucesso.")
             return redirect('detalhar_produto', id=produto.id)
     else:
         form = ProdutoForm()
@@ -94,6 +109,8 @@ def criar_produto(request):
     return render(request, 'produtos/criar.html', {'form': form})
 
 
+
+@require_http_methods(["GET", "HEAD"])
 def detalhar_produto(request, id):
     produto = get_object_or_404(Produto, id=id)
     return render(request, 'produtos/detalhar.html', {'produto': produto})
@@ -109,6 +126,7 @@ def editar_produto(request, id):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Produto atualizado com sucesso.")
             return redirect('detalhar_produto', id=produto.id)
     else:
         form = ProdutoForm(instance=produto)
@@ -127,6 +145,7 @@ def excluir_produto(request, id):
         except ProtectedError:
             messages.error(request, "Este registro está em uso e não pode ser excluído.")
         else:
+            messages.success(request, "Produto excluído com sucesso.")
             return redirect('listar_produtos')
 
     return render(request, 'produtos/excluir.html', {'produto': produto})

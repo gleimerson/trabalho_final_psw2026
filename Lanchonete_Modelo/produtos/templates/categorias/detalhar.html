@@ -1,1 +1,59 @@
-{% extends "base.html" %}{% block content %}<h1 class="display-6">{{ categoria.nome }}</h1><p>{{ categoria.descricao }}</p><div class="d-flex gap-2">{% if perms.produtos.change_categoria %}<a class="btn btn-primary rounded-pill" href="{% url 'editar_categoria' categoria.id %}">Editar</a>{% endif %}{% if perms.produtos.delete_categoria %}<a class="btn btn-outline-danger rounded-pill" href="{% url 'excluir_categoria' categoria.id %}">Excluir</a>{% endif %}<a class="btn btn-outline-dark rounded-pill" href="{% url 'listar_categorias' %}">Voltar</a></div>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="display-6">{{ categoria.nome }}</h1>
+
+<p>{{ categoria.descricao }}</p>
+
+<h2 class="h4 mt-4">Produtos</h2>
+
+<div class="row">
+    {% for produto in produtos %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ produto.nome }}</h5>
+
+                    <p class="card-text">
+                        {{ produto.descricao }}
+                    </p>
+
+                    <p class="fw-bold">
+                        R$ {{ produto.preco }}
+                    </p>
+
+                    <a class="btn btn-outline-primary rounded-pill"
+                       href="{% url 'detalhar_produto' produto.id %}">
+                        Ver produto
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>Nenhum produto cadastrado nesta categoria.</p>
+    {% endfor %}
+</div>
+
+<div class="d-flex gap-2 mt-3">
+    {% if perms.produtos.change_categoria %}
+        <a class="btn btn-primary rounded-pill"
+           href="{% url 'editar_categoria' categoria.id %}">
+            Editar
+        </a>
+    {% endif %}
+
+    {% if perms.produtos.delete_categoria %}
+        <a class="btn btn-outline-danger rounded-pill"
+           href="{% url 'excluir_categoria' categoria.id %}">
+            Excluir
+        </a>
+    {% endif %}
+
+    <a class="btn btn-outline-dark rounded-pill"
+       href="{% url 'listar_categorias' %}">
+        Voltar
+    </a>
+</div>
+
+{% endblock %}

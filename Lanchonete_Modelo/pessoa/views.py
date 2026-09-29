@@ -23,6 +23,7 @@ def pessoa_acessivel(request, id, acao):
 
 @login_required
 @permission_required("pessoa.view_pessoa", raise_exception=True)
+@require_http_methods(["GET", "HEAD"])
 def listar_pessoas(request):
     pessoas = Pessoa.objects.order_by("nome", "pk")
     return render(request, "pessoa/listar.html", {"pessoas": pessoas})
@@ -63,6 +64,7 @@ def criar_pessoa(request):
 
 
 @login_required
+@require_http_methods(["GET", "HEAD"])
 def minha_conta(request):
     pessoa = Pessoa.objects.filter(pk=request.user.pk).first()
     if pessoa is None:
@@ -72,6 +74,7 @@ def minha_conta(request):
 
 
 @login_required
+@require_http_methods(["GET", "HEAD"])
 def detalhar_pessoa(request, id):
     pessoa = pessoa_acessivel(request, id, "view")
     return render(request, "pessoa/detalhar.html", {"pessoa": pessoa})
