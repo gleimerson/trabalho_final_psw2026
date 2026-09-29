@@ -7,7 +7,7 @@ O projeto usa o Baker 1.0.0 (HTML Codex) como camada visual, mantendo as rotas, 
 - Os arquivos do template ficam em `Lanchonete_Modelo/static/baker/`, separados em `css/`, `img/`, `js/`, `lib/`, `fonts/` e `webfonts/`.
 - `templates/base.html` carrega os estilos na ordem do Baker e o `static/css/site.css` por último. `includes/` contém navbar, mensagens, rodapé, cartões e imagens de produtos.
 - `form_base.html` e `confirmar_exclusao_base.html` padronizam formulários e exclusões. `produtos/templatetags/form_ui.py` adapta widgets para Bootstrap 5 sem alterar validação.
-- `static/js/app.js` inicializa apenas plugins disponíveis, remove o spinner, trata o botão de topo e mantém o fallback de imagens.
+- `static/js/app.js` remove o spinner, trata o botão de topo e mantém o fallback de imagens.
 
 Os assets são servidos em desenvolvimento por `STATIC_URL` e, em produção, devem ser reunidos com `python manage.py collectstatic`. Uploads continuam em `MEDIA_ROOT` e são servidos por `MEDIA_URL` somente quando `DEBUG` está ativo.
 
@@ -19,7 +19,7 @@ O crédito do template foi removido do rodapé a pedido do responsável pelo pro
 
 - `python manage.py check`: passou sem erros.
 - `python manage.py makemigrations --check --dry-run`: passou, sem mudanças detectadas.
-- `python manage.py collectstatic --noinput --dry-run`: passou; 173 arquivos encontrados, sem avisos de arquivo ausente.
+- `python manage.py collectstatic --noinput --dry-run`: passou; 157 arquivos encontrados, sem avisos de arquivo ausente.
 - `python manage.py test`: 40 testes passaram.
 - Cliente Django: início (302 para produtos), produtos, categorias, login, cadastro, pedidos, pessoas e páginas de detalhe/formulário responderam conforme as permissões (200, 302 ou 403).
 
