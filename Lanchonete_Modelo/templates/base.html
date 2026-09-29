@@ -1,37 +1,21 @@
 {% load static %}
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Lanchonete Modelo{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    <meta name="description" content="Cardápio e pedidos da Lanchonete Modelo">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Playfair+Display:wght@600;700&display=swap">
+    <link rel="stylesheet" href="{% static 'baker/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'baker/css/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'baker/css/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'baker/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">{% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <a class="marca" href="{% url 'inicio' %}">Lanchonete Modelo</a>
-        <nav aria-label="Navegação principal">
-            <a href="{% url 'listar_produtos' %}">Produtos</a>
-            <a href="{% url 'listar_categorias' %}">Categorias</a>
-            {% if perms.pessoa.view_pessoa %}<a href="{% url 'listar_pessoas' %}">Pessoas</a>{% endif %}
-            <a href="{% url 'listar_pedidos' %}">Pedidos</a>
-            {% if user.is_authenticated %}
-                <a href="{% url 'minha_conta' %}">Minha conta</a>
-                <a href="{% url 'alterar_senha' %}">Alterar senha</a>
-                {% if user.is_staff %}<a href="{% url 'admin:index' %}">Administração</a>{% endif %}
-                <form method="post" action="{% url 'logout_pessoa' %}" class="sair">
-                    {% csrf_token %}
-                    <button type="submit">Sair</button>
-                </form>
-            {% else %}
-                <a href="{% url 'login_pessoa' %}">Entrar</a>
-                <a href="{% url 'cadastro' %}">Cadastre-se</a>
-            {% endif %}
-        </nav>
-    </header>
-    <main id="conteudo">
-        {% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
-        {% block content %}{% endblock %}
-    </main>
-</body>
-</html>
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center" aria-label="Carregando"><div class="spinner-grow text-primary" role="status"><span class="visually-hidden">Carregando</span></div></div>
+    {% include "includes/navbar.html" %}{% block hero %}{% endblock %}
+    <main id="conteudo" class="container-xxl py-6"><a class="skip-link" href="#conteudo">Pular para o conteúdo</a>{% include "includes/messages.html" %}{% block content %}{% endblock %}</main>
+    {% include "includes/footer.html" %}<a href="#conteudo" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top" aria-label="Voltar ao topo"><i class="bi bi-arrow-up"></i></a>
+    <script src="{% static 'js/pedidos.js' %}" defer></script><script src="{% static 'js/app.js' %}" defer></script>{% block extra_js %}{% endblock %}
+</body></html>

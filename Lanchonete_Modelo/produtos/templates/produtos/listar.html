@@ -1,22 +1,4 @@
-{% extends "base.html" %}
-
-{% block content %}
-<h1>Produtos</h1>
-
-{% if perms.produtos.add_produto %}
-<a href="{% url 'criar_produto' %}">Novo produto</a>
-{% endif %}
-
-<ul>
-    {% for produto in produtos %}
-        <li>
-            <a href="{% url 'detalhar_produto' produto.id %}">
-                {{ produto.nome }}
-            </a>
-            - R$ {{ produto.preco|floatformat:2 }}
-        </li>
-    {% empty %}
-        <li>Nenhum produto cadastrado.</li>
-    {% endfor %}
-</ul>
-{% endblock %}
+{% extends "base.html" %}{% load static %}
+{% block title %}Produtos — Lanchonete Modelo{% endblock %}
+{% block hero %}<section class="container-fluid p-0 pb-5"><div class="position-relative"><img class="img-fluid w-100" style="max-height:420px;object-fit:cover" src="{% static 'baker/img/carousel-1.jpg' %}" alt="Produtos da Lanchonete Modelo"><div class="position-absolute top-50 start-0 translate-middle-y w-100"><div class="container"><div class="col-lg-7"><p class="text-primary text-uppercase fw-bold mb-2">// Cardápio da casa</p><h1 class="display-4 text-white mb-3">Sabores preparados para você</h1><p class="text-white fs-5">Escolha seus produtos e monte seu pedido.</p></div></div></div></div></section>{% endblock %}
+{% block content %}<div class="d-flex flex-wrap justify-content-between align-items-center mb-5"><div><p class="text-primary text-uppercase mb-2">// Nosso cardápio</p><h1 class="display-6 mb-0">Produtos</h1></div>{% if perms.produtos.add_produto %}<a class="btn btn-primary rounded-pill" href="{% url 'criar_produto' %}">Novo produto</a>{% endif %}</div><div class="row g-4">{% for produto in produtos %}{% include "includes/product_card.html" %}{% empty %}<div class="col-12"><div class="alert alert-info">Nenhum produto cadastrado.</div></div>{% endfor %}</div>{% endblock %}

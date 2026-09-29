@@ -1,9 +1,1 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>Alterar senha</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Alterar senha</button>
-</form>
-{% endblock %}
+{% extends "form_base.html" %}{% block form_title %}Alterar senha{% endblock %}{% block form_content %}<form method="post">{% csrf_token %}{% include "includes/form_fields.html" %}<button class="btn btn-primary rounded-pill" type="submit">Alterar senha</button></form>{% endblock %}

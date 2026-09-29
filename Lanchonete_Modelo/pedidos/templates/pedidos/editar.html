@@ -1,5 +1,1 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>Editar pedido #{{ pedido.pk }}</h1>
-{% include "pedidos/formulario.html" %}
-{% endblock %}
+{% extends "form_base.html" %}{% block form_title %}Editar pedido #{{ pedido.pk }}{% endblock %}{% block form_content %}{% include "pedidos/formulario.html" %}{% endblock %}

@@ -1,11 +1,1 @@
-{% extends "base.html" %}
-{% block title %}Cadastro — Lanchonete Modelo{% endblock %}
-{% block content %}
-<h1>Criar conta</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Cadastrar</button>
-</form>
-<p>Já tem conta? <a href="{% url 'login_pessoa' %}">Entre aqui</a>.</p>
-{% endblock %}
+{% extends "form_base.html" %}{% block title %}Cadastro — Lanchonete Modelo{% endblock %}{% block form_title %}Criar conta{% endblock %}{% block form_content %}<form method="post">{% csrf_token %}{% include "includes/form_fields.html" %}<button class="btn btn-primary rounded-pill" type="submit">Cadastrar</button></form><p class="mt-3">Já tem conta? <a href="{% url 'login_pessoa' %}">Entre aqui</a>.</p>{% endblock %}
