@@ -1,8 +1,7 @@
 {% load form_ui %}
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top py-lg-0 px-lg-5" aria-label="Navegação principal">
- <a href="{% url 'inicio' %}" class="navbar-brand ms-4 ms-lg-0"><h1 class="text-primary m-0">Lanchonete Modelo</h1></a>
- <button class="navbar-toggler me-4" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Abrir menu"><span class="navbar-toggler-icon"></span></button>
- <div class="collapse navbar-collapse" id="navbarCollapse"><div class="navbar-nav mx-auto p-4 p-lg-0">
+<nav class="navbar navbar-dark fixed-top py-2 px-lg-5" aria-label="Navegação principal">
+ <div class="container-fluid flex-wrap gap-2"><a href="{% url 'inicio' %}" class="navbar-brand ms-2"><h1 class="text-primary m-0">Lanchonete Modelo</h1></a>
+ <div class="navbar-nav flex-row flex-wrap align-items-center gap-1 ms-auto">
   {% include "includes/nav_link.html" with url_name="listar_produtos" label="Produtos" %}{% include "includes/nav_link.html" with url_name="listar_categorias" label="Categorias" %}
   {% if perms.pessoa.view_pessoa %}{% include "includes/nav_link.html" with url_name="listar_pessoas" label="Pessoas" %}{% endif %}
   {% if user.is_authenticated %}{% include "includes/nav_link.html" with url_name="listar_pedidos" label="Pedidos" %}{% include "includes/nav_link.html" with url_name="minha_conta" label="Minha conta" %}{% include "includes/nav_link.html" with url_name="alterar_senha" label="Alterar senha" %}{% endif %}

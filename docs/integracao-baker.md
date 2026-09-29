@@ -13,7 +13,7 @@ Os assets são servidos em desenvolvimento por `STATIC_URL` e, em produção, de
 
 Quando um produto não possui imagem, o cartão usa `baker/img/product-1.jpg` como imagem padrão. O template Baker anterior não usado pelo projeto não foi copiado; também não foram copiados SCSS, HTMLs de exemplo, o preview e dependências não utilizadas.
 
-O crédito exigido pela licença CC BY 4.0 permanece no rodapé: **Designed By HTML Codex / Distributed By ThemeWagon**, com os links originais.
+O crédito do template foi removido do rodapé a pedido do responsável pelo projeto.
 
 ## Verificações
 
