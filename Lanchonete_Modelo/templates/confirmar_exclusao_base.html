@@ -1,0 +1,2 @@
+{% extends "base.html" %}
+{% block content %}<section class="form-shell"><h1 class="display-6 mb-4">{% block delete_title %}Confirmar exclusão{% endblock %}</h1><p>{% block delete_message %}Tem certeza que deseja excluir este registro?{% endblock %}</p><form method="post">{% csrf_token %}<button type="submit" class="btn btn-danger rounded-pill">Sim, excluir</button> <a class="btn btn-outline-dark rounded-pill" href="{% block cancel_url %}{% url 'listar_produtos' %}{% endblock %}">Cancelar</a></form></section>{% endblock %}

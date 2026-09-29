@@ -1,0 +1,1 @@
+{% load form_ui %}<a href="{% url url_name %}" class="nav-item nav-link{% if request.resolver_match.url_name|startswith:url_name %} active{% endif %}">{{ label }}</a>

@@ -1,0 +1,1 @@
+{% load static %}{% if produto.imagem %}<img class="img-fluid" src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" data-fallback="{% static 'baker/img/product-1.jpg' %}">{% else %}<img class="img-fluid" src="{% static 'baker/img/product-1.jpg' %}" alt="{{ produto.nome }}">{% endif %}
