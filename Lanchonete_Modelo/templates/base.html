@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="{% static 'baker/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'baker/css/fontawesome-all.min.css' %}">
     <link rel="stylesheet" href="{% static 'baker/css/bootstrap-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'baker/lib/animate/animate.min.css' %}">
-    <link rel="stylesheet" href="{% static 'baker/lib/owlcarousel/assets/owl.carousel.min.css' %}">
     <link rel="stylesheet" href="{% static 'baker/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/site.css' %}">{% block extra_css %}{% endblock %}
 </head>
@@ -19,5 +17,5 @@
     {% include "includes/navbar.html" %}{% block hero %}{% endblock %}
     <main id="conteudo" class="container-xxl py-6"><a class="skip-link" href="#conteudo">Pular para o conteúdo</a>{% include "includes/messages.html" %}{% block content %}{% endblock %}</main>
     {% include "includes/footer.html" %}<a href="#conteudo" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top" aria-label="Voltar ao topo"><i class="bi bi-arrow-up"></i></a>
-    <script src="{% static 'baker/js/jquery-3.4.1.min.js' %}" defer></script><script src="{% static 'baker/js/bootstrap.bundle.min.js' %}" defer></script><script src="{% static 'baker/lib/wow/wow.min.js' %}" defer></script><script src="{% static 'baker/lib/owlcarousel/owl.carousel.min.js' %}" defer></script><script src="{% static 'baker/lib/easing/easing.min.js' %}" defer></script><script src="{% static 'baker/lib/waypoints/waypoints.min.js' %}" defer></script><script src="{% static 'baker/lib/counterup/counterup.min.js' %}" defer></script><script src="{% static 'js/pedidos.js' %}" defer></script><script src="{% static 'js/app.js' %}" defer></script>{% block extra_js %}{% endblock %}
+    <script src="{% static 'js/pedidos.js' %}" defer></script><script src="{% static 'js/app.js' %}" defer></script>{% block extra_js %}{% endblock %}
 </body></html>
