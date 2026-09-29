@@ -1,0 +1,16 @@
+<h1>{{ produto.nome }}</h1>
+
+<p>Descrição: {{ produto.descricao }}</p>
+<p>Preço: R$ {{ produto.preco }}</p>
+<p>Disponível: {{ produto.disponivel }}</p>
+<p>Categoria: {{ produto.categoria.nome }}</p>
+
+{% if produto.imagem %}
+    <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" width="200">
+{% endif %}
+
+<br>
+
+<a href="{% url 'editar_produto' produto.id %}">Editar</a>
+<a href="{% url 'excluir_produto' produto.id %}">Excluir</a>
+<a href="{% url 'listar_produtos' %}">Voltar</a>

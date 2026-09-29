@@ -1,0 +1,10 @@
+<h1>Editar pedido</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Salvar alterações</button>
+</form>
+
+<a href="{% url 'detalhar_pedido' pedido.id %}">Cancelar</a>

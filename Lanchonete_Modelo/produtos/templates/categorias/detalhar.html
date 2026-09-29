@@ -1,0 +1,7 @@
+<h1>{{ categoria.nome }}</h1>
+
+<p>{{ categoria.descricao }}</p>
+
+<a href="{% url 'editar_categoria' categoria.id %}">Editar</a>
+<a href="{% url 'excluir_categoria' categoria.id %}">Excluir</a>
+<a href="{% url 'listar_categorias' %}">Voltar</a>

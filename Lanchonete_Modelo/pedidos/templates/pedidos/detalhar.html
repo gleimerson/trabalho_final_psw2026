@@ -1,0 +1,10 @@
+<h1>Pedido #{{ pedido.id }}</h1>
+
+<p>Cliente: {{ pedido.pessoa.nome }}</p>
+<p>Status: {{ pedido.status }}</p>
+<p>Valor total: R$ {{ pedido.valor_total }}</p>
+<p>Data: {{ pedido.data_pedido }}</p>
+
+<a href="{% url 'editar_pedido' pedido.id %}">Editar</a>
+<a href="{% url 'excluir_pedido' pedido.id %}">Excluir</a>
+<a href="{% url 'listar_pedidos' %}">Voltar</a>

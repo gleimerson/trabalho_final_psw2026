@@ -1,0 +1,16 @@
+<h1>Pessoas</h1>
+
+<a href="{% url 'criar_pessoa' %}">Nova pessoa</a>
+
+<ul>
+    {% for pessoa in pessoas %}
+        <li>
+            <a href="{% url 'detalhar_pessoa' pessoa.id %}">
+                {{ pessoa.nome }}
+            </a>
+            - {{ pessoa.cpf }}
+        </li>
+    {% empty %}
+        <li>Nenhuma pessoa cadastrada.</li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,15 @@
+<h1>Categorias</h1>
+
+<a href="{% url 'criar_categoria' %}">Nova categoria</a>
+
+<ul>
+    {% for categoria in categorias %}
+        <li>
+            <a href="{% url 'detalhar_categoria' categoria.id %}">
+                {{ categoria.nome }}
+            </a>
+        </li>
+    {% empty %}
+        <li>Nenhuma categoria cadastrada.</li>
+    {% endfor %}
+</ul>
