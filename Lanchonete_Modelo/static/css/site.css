@@ -1,5 +1,6 @@
 :root { --primary: #EAA636; --dark: #1E1916; --light: #FDF5EB; }
-body { padding-top: 86px; background: #fff; }
+body { padding-top: 0; background: #fff; }
+main#conteudo { padding-top: 8rem; }
 .navbar { background: rgba(30,25,22,.98); }
 .navbar-brand h1 { font-family: "Playfair Display", serif; font-size: 1.25rem; }
 .navbar .navbar-nav .nav-link { padding: .35rem .5rem; color: var(--light); outline: none; white-space: nowrap; font-size: .88rem; }
@@ -15,5 +16,5 @@ body { padding-top: 86px; background: #fff; }
 .product-item img { height: 220px; width: 100%; object-fit: cover; }
 .product-item .product-overlay { z-index: 2; }
 :focus-visible { outline: 3px solid #8a5100; outline-offset: 3px; }
-@media (max-width: 991.98px) { body { padding-top: 104px; } .navbar .navbar-nav .nav-link { padding: .25rem .35rem; font-size: .8rem; } .navbar .navbar-nav { background: transparent; } .navbar-brand h1 { font-size: 1.1rem; } }
+@media (max-width: 991.98px) { main#conteudo { padding-top: 7rem; } .navbar .navbar-nav .nav-link { padding: .25rem .35rem; font-size: .8rem; } .navbar .navbar-nav { background: transparent; } .navbar-brand h1 { font-size: 1.1rem; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
